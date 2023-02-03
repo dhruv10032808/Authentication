@@ -17,10 +17,13 @@ const AuthForm = () => {
     const enteredEmail=emailInputRef.current.value;
     const enteredPassword=passwordInputRef.current.value;
     setIsLoading(true);
+    let url;
     if(isLogin){
-
+      url='https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyA7rO4EdjhHpAXsr7mgambxo-3AXaJ3zlY'
     }else{
-      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA7rO4EdjhHpAXsr7mgambxo-3AXaJ3zlY',{
+      url='https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyA7rO4EdjhHpAXsr7mgambxo-3AXaJ3zlY'
+    }
+    fetch(url,{
         method:'POST',
         body:JSON.stringify({
            email:enteredEmail,
@@ -31,21 +34,25 @@ const AuthForm = () => {
           'Content-Type':'application/json'
         }
       }).then((res)=>{
-      if(res.ok){
         setIsLoading(false);
+      if(res.ok){
+        return res.json();
       }else{
         return res.json().then((data)=>{
           let errorMessage='Authentication failed!'
           if(data && data.error && data.error.message){
             errorMessage=data.error.message
           }
-          alert(errorMessage)
           console.log(data);
-          setIsLoading(false);
+          throw new Error(errorMessage)
         })
       }
+      }).then((data)=>{
+        console.log(data)
       })
-    }
+      .catch((err)=>{
+        alert(err)
+      })
   }
 
   return (
